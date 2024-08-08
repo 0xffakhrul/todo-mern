@@ -8,9 +8,6 @@ router.get("/:userId", async (req: Request, res: Response) => {
     const userId = req.params.userId;
     const todos = await Todo.find({ userId: userId });
 
-    if (todos.length === 0) {
-      return res.status(404).json("No todos found");
-    }
     res.status(200).send(todos);
   } catch (error) {
     res.status(500).send(error);
