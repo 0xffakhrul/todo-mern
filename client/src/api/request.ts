@@ -1,14 +1,33 @@
-// import axios from "axios";
+import axios from "axios";
 
-// const BASE_URL = "http://localhost:6969/api/todos";
-// const client = axios.create({ baseURL: BASE_URL });
+const BASE_URL = "http://localhost:6969/api/todos";
 
-// export const getTodosIds = async () => {
-//   const response = (await client.get(`${userId}`)).data;
-//   return response;
-// };
+export interface Todo {
+  _id: string;
+  userId: string;
+  createdAt: string;
+  description: string;
+  isCompleted: boolean;
+}
 
-// export const getTodo = async (userId: string) => {
-//   const response = (await client.get(`${userId}`)).data;
-//   return response;
-// };
+export const getTodos = async (userId: string): Promise<Todo[]> => {
+  const response = await axios.get(`${BASE_URL}/${userId}`);
+  return response.data;
+};
+
+export const createTodo = async (
+  todo: Omit<Todo, "_id" | "createdAt">
+): Promise<Todo[]> => {
+  const response = await axios.post(BASE_URL, todo);
+  return response.data;
+};
+
+export const updateTodo = async (todo: Todo): Promise<Todo> => {
+  const response = await axios.put(`${BASE_URL}/${todo._id}`, todo);
+  return response.data;
+};
+
+export const deleteTodo = async (todo: Todo): Promise<Todo> => {
+  const response = await axios.delete(`${BASE_URL}/${todo._id}`);
+  return response.data;
+};
