@@ -12,7 +12,7 @@ export const Dashboard = () => {
   if (isLoading) return <div>Loading..</div>;
   if (error) return <div>error occurred: {error.message}</div>;
   return (
-    <div className="max-w-3xl mx-auto m-6">
+    <div className="max-w-3xl mx-auto m-6 w-11/12">
       <div className="flex justify-between items-center pb-2">
         <h1 className="text-3xl font-black bg-gradient-to-l from-cyan-200 to-purple-400 bg-clip-text text-transparent">
           Welcome, {user?.firstName}
