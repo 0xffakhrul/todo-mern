@@ -30,9 +30,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             color: "#ff8880",
           },
         },
+        loading: {
+          style: {
+            background: "rgb(165 243 252 / 0)",
+            color: "#a5f3fc",
+          },
+        },
       }}
     />
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} signInFallbackRedirectUrl="/dashboard" afterSignOutUrl="/">
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      signInFallbackRedirectUrl="/dashboard"
+      afterSignOutUrl="/"
+    >
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
