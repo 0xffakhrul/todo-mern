@@ -7,7 +7,7 @@ import todo from "./routes/todos";
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 6969;
 
 app.use(cors());
 app.use(express.json());
