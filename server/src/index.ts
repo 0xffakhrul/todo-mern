@@ -27,4 +27,8 @@ const connectDB = async () => {
 
 connectDB();
 
+app.get("/", (req: Request, res: Response) => {
+  res.send("YOOOOO");
+});
+
 app.use("/api/todos", todo);
