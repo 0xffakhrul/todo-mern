@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:6969/api/todos";
+const BASE_URL = "https://todo-backend-vjw9.onrender.com/";
 
 export interface Todo {
   _id: string;
