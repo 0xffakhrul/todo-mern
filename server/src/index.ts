@@ -14,7 +14,8 @@ app.use(express.json());
 
 app.listen(port, () => console.log("listening on 6969"));
 
-const mongoURI: string = process.env.MONGO_URI!;
+const mongoURI =
+  "mongodb+srv://fakh:1GLARLtCI1RbROa0@todocluster.8vacc.mongodb.net/?retryWrites=true&w=majority&appName=TodoCluster";
 
 const connectDB = async () => {
   try {
