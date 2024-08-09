@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { ClerkProvider } from "@clerk/clerk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +16,23 @@ if (!PUBLISHABLE_KEY) {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+    <Toaster
+      toastOptions={{
+        success: {
+          style: {
+            background: "rgb(74 222 128 / 0.2)",
+            color: "#8aff80",
+          },
+        },
+        error: {
+          style: {
+            background: "rgb(248 113 113 / 0.2)",
+            color: "#ff8880",
+          },
+        },
+      }}
+    />
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} signInFallbackRedirectUrl="/dashboard" afterSignOutUrl="/">
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
