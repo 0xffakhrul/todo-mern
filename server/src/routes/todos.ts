@@ -3,6 +3,16 @@ import { Todo } from "../models/Todo";
 
 const router = express.Router();
 
+router.get("/all", async (req: Request, res: Response) => {
+  try {
+    const todos = await Todo.find();
+
+    res.status(200).send(todos);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 router.get("/:userId", async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
