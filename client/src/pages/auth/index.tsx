@@ -5,6 +5,7 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
 
 const Auth = () => {
   return (
@@ -29,6 +30,9 @@ const Auth = () => {
 
       <SignedIn>
         <UserButton />
+        <Link to="/dashboard">
+          <p className="pt-3 text-purple-500">Go to dashboard</p>
+        </Link>
       </SignedIn>
     </div>
   );
