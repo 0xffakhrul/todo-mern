@@ -2,7 +2,6 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
-  SignUpButton,
   UserButton,
 } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
