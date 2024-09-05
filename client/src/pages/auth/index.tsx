@@ -15,14 +15,9 @@ const Auth = () => {
       </h1>
       <SignedOut>
         <div className="space-x-4">
-          <SignUpButton mode="modal">
-            <button className="px-6 py-2 bg-purple-500/40 rounded-lg text-lg font-black text-purple-300">
-              Sign Up
-            </button>
-          </SignUpButton>
           <SignInButton mode="modal">
             <button className="px-6 py-2 bg-green-500/40 rounded-lg text-lg font-black text-green-300 ">
-              Sign In
+              Get Started
             </button>
           </SignInButton>
         </div>
