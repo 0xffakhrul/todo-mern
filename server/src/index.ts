@@ -21,7 +21,7 @@ const connectDB = async () => {
     await mongoose.connect(mongoURI);
     console.log("CONNECTED!");
   } catch (error) {
-    console.log("ERROR!");
+    console.log("ERROR!", error);
   }
 };
 

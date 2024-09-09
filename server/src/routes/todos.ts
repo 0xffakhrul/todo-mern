@@ -30,7 +30,7 @@ router.post("/", async (req: Request, res: Response) => {
     const newTodo = new Todo(data);
     const createdTodo = await newTodo.save();
 
-    res.status(200).send(createdTodo);
+    res.status(201).send(createdTodo);
   } catch (error) {
     res.status(500).send(error);
   }
