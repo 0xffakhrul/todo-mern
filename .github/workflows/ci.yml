@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .nvmrc
+          node-version-file: server/.nvmrc
           cache: npm
           cache-dependency-path: server/package-lock.json
 
@@ -71,7 +71,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Smoke test the image
+      - name: Test the image
         run: |
           docker network create ci-net
           docker run -d --name mongo --network ci-net mongo:8
