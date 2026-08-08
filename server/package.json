@@ -5,7 +5,9 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "nodemon",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
