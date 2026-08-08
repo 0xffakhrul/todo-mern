@@ -1,13 +1,23 @@
 import type { ErrorRequestHandler } from "express";
 import mongoose from "mongoose";
+import { ZodError } from "zod";
 import { AppError } from "../utils/AppError";
 import { env } from "../config/env";
+import { logger } from "../config/logger";
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   let statusCode = 500;
   let message = "Internal server error";
+  let issues: { path: string; message: string }[] | undefined;
 
-  if (err instanceof AppError) {
+  if (err instanceof ZodError) {
+    statusCode = 400;
+    message = "Validation failed";
+    issues = err.issues.map((i) => ({
+      path: i.path.join(".") || "(root)",
+      message: i.message,
+    }));
+  } else if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;
   } else if (err instanceof mongoose.Error.ValidationError) {
@@ -18,12 +28,16 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     message = `Invalid value for ${err.path}`;
   }
 
-  if (statusCode >= 500) console.error(err);
+  if (statusCode >= 500) logger.error({ err }, "Unhandled error");
 
   const includeStack =
-    env.nodeEnv === "development" && statusCode >= 500 && err instanceof Error;
+    env.isDevelopment && statusCode >= 500 && err instanceof Error;
 
   res.status(statusCode).json({
-    error: { message, ...(includeStack ? { stack: err.stack } : {}) },
+    error: {
+      message,
+      ...(issues ? { issues } : {}),
+      ...(includeStack ? { stack: err.stack } : {}),
+    },
   });
 };

@@ -1,15 +1,40 @@
 import dotenv from "dotenv";
+import { z } from "zod";
 
 dotenv.config();
 
-function required(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing required environment variable: ${name}`);
-  return value;
+const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+  PORT: z.coerce.number().int().positive().default(8080),
+  MONGO_URI: z.string().min(1),
+  CORS_ORIGINS: z.string().default("http://localhost:5173"),
+  LOG_LEVEL: z
+    .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
+    .default("info"),
+});
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  const details = parsed.error.issues
+    .map((i) => `  - ${i.path.join(".") || "(root)"}: ${i.message}`)
+    .join("\n");
+  console.error(`Invalid environment variables:\n${details}`);
+  process.exit(1);
 }
 
+const data = parsed.data;
+
 export const env = {
-  nodeEnv: process.env.NODE_ENV ?? "development",
-  port: Number(process.env.PORT ?? 6969),
-  mongoUri: required("MONGO_URI"),
+  nodeEnv: data.NODE_ENV,
+  port: data.PORT,
+  mongoUri: data.MONGO_URI,
+  logLevel: data.LOG_LEVEL,
+  corsOrigins: data.CORS_ORIGINS.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+  isDevelopment: data.NODE_ENV === "development",
+  isProduction: data.NODE_ENV === "production",
 } as const;

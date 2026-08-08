@@ -1,18 +1,55 @@
+import type { Server } from "node:http";
 import { createApp } from "./app";
-import { connectDB } from "./config/db";
+import { connectDB, disconnectDB } from "./config/db";
 import { env } from "./config/env";
+import { logger } from "./config/logger";
+
+let server: Server | undefined;
+
+async function shutdown(signal: string): Promise<void> {
+  logger.info({ signal }, "Shutting down");
+
+  const force = setTimeout(() => {
+    logger.error("Forced shutdown after timeout");
+    process.exit(1);
+  }, 10_000);
+  force.unref();
+
+  try {
+    if (server) {
+      await new Promise<void>((resolve, reject) => {
+        server!.close((err) => (err ? reject(err) : resolve()));
+      });
+    }
+    await disconnectDB();
+    logger.info("Shutdown complete");
+    process.exit(0);
+  } catch (err) {
+    logger.error({ err }, "Error during shutdown");
+    process.exit(1);
+  }
+}
 
 async function main(): Promise<void> {
   await connectDB();
-  console.log("Mongo connected");
+  logger.info("Mongo connected");
 
   const app = createApp();
-  app.listen(env.port, () => {
-    console.log(`Listening on http://localhost:${env.port}`);
+  server = app.listen(env.port, () => {
+    logger.info(`Listening on http://localhost:${env.port}`);
   });
 }
 
-main().catch((error) => {
-  console.error("Failed to start server", error);
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  process.on(signal, () => void shutdown(signal));
+}
+
+process.on("unhandledRejection", (reason) => {
+  logger.error({ reason }, "Unhandled rejection");
+  void shutdown("unhandledRejection");
+});
+
+main().catch((err) => {
+  logger.error({ err }, "Failed to start server");
   process.exit(1);
 });

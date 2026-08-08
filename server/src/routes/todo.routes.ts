@@ -1,12 +1,35 @@
 import { Router } from "express";
 import * as controller from "../controllers/todo.controller";
+import { validate } from "../middleware/validate";
+import {
+  createTodoBody,
+  updateTodoBody,
+  todoIdParams,
+  userIdParams,
+} from "../validators/todo.schema";
 
 const router = Router();
 
 router.get("/all", controller.getAllTodos);
-router.get("/:userId", controller.getTodosByUser);
-router.post("/", controller.createTodo);
-router.put("/:id", controller.updateTodo);
-router.delete("/:id", controller.deleteTodo);
+
+router.get(
+  "/:userId",
+  validate({ params: userIdParams }),
+  controller.getTodosByUser,
+);
+
+router.post("/", validate({ body: createTodoBody }), controller.createTodo);
+
+router.put(
+  "/:id",
+  validate({ params: todoIdParams, body: updateTodoBody }),
+  controller.updateTodo,
+);
+
+router.delete(
+  "/:id",
+  validate({ params: todoIdParams }),
+  controller.deleteTodo,
+);
 
 export default router;
