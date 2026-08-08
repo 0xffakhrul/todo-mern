@@ -1,8 +1,8 @@
 import {
-  Schema,
-  model,
-  type InferSchemaType,
   type HydratedDocument,
+  type InferSchemaType,
+  model,
+  Schema,
 } from "mongoose";
 
 const todoSchema = new Schema(

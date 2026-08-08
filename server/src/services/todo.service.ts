@@ -1,6 +1,6 @@
-import { TodoModel, type TodoDocument } from "../models/todo.model";
-import type { CreateTodoBody, UpdateTodoBody } from "../validators/todo.schema";
+import { type TodoDocument, TodoModel } from "../models/todo.model";
 import { AppError } from "../utils/AppError";
+import type { CreateTodoBody, UpdateTodoBody } from "../validators/todo.schema";
 
 export async function listTodos(): Promise<TodoDocument[]> {
   return TodoModel.find().sort({ createdAt: -1 });

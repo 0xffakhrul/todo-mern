@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../app";
 import { TodoModel } from "../models/todo.model";
 
@@ -81,9 +81,9 @@ describe("GET /api/todos", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
-    expect(res.body.every((t: { userId: string }) => t.userId === "alice")).toBe(
-      true,
-    );
+    expect(
+      res.body.every((t: { userId: string }) => t.userId === "alice"),
+    ).toBe(true);
   });
 
   it("returns an empty array for an unknown user", async () => {

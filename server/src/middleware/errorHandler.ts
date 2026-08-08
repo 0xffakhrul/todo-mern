@@ -1,9 +1,9 @@
 import type { ErrorRequestHandler } from "express";
 import mongoose from "mongoose";
 import { ZodError } from "zod";
-import { AppError } from "../utils/AppError";
 import { env } from "../config/env";
 import { logger } from "../config/logger";
+import { AppError } from "../utils/AppError";
 
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   let statusCode = 500;

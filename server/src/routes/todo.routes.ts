@@ -3,8 +3,8 @@ import * as controller from "../controllers/todo.controller";
 import { validate } from "../middleware/validate";
 import {
   createTodoBody,
-  updateTodoBody,
   todoIdParams,
+  updateTodoBody,
   userIdParams,
 } from "../validators/todo.schema";
 

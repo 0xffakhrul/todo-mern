@@ -1,12 +1,12 @@
-import express, { type Express } from "express";
 import cors from "cors";
+import express, { type Express } from "express";
 import helmet from "helmet";
+import { env } from "./config/env";
+import { errorHandler } from "./middleware/errorHandler";
+import { notFound } from "./middleware/notFound";
+import { requestLogger } from "./middleware/requestLogger";
 import routes from "./routes";
 import healthRoutes from "./routes/health.routes";
-import { requestLogger } from "./middleware/requestLogger";
-import { notFound } from "./middleware/notFound";
-import { errorHandler } from "./middleware/errorHandler";
-import { env } from "./config/env";
 
 export function createApp(): Express {
   const app = express();

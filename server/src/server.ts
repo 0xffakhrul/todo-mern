@@ -16,9 +16,10 @@ async function shutdown(signal: string): Promise<void> {
   force.unref();
 
   try {
-    if (server) {
+    const s = server;
+    if (s) {
       await new Promise<void>((resolve, reject) => {
-        server!.close((err) => (err ? reject(err) : resolve()));
+        s.close((err) => (err ? reject(err) : resolve()));
       });
     }
     await disconnectDB();

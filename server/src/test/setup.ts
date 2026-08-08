@@ -1,6 +1,6 @@
-import { afterAll, afterEach, beforeAll } from "vitest";
-import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
+import { afterAll, afterEach, beforeAll } from "vitest";
 
 let mongo: MongoMemoryServer;
 

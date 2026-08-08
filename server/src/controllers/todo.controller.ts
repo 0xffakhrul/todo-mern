@@ -2,8 +2,8 @@ import type { Request, Response } from "express";
 import * as todoService from "../services/todo.service";
 import type {
   CreateTodoBody,
-  UpdateTodoBody,
   TodoIdParams,
+  UpdateTodoBody,
   UserIdParams,
 } from "../validators/todo.schema";
 
