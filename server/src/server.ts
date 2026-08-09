@@ -37,7 +37,7 @@ async function main(): Promise<void> {
 
   const app = createApp();
   server = app.listen(env.port, () => {
-    logger.info(`Listening on port ${env.port} — deploy test 2`);
+    logger.info(`Listening on port ${env.port} — deploy test 3`);
   });
 }
 
