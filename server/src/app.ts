@@ -12,12 +12,17 @@ export function createApp(): Express {
   const app = express();
 
   app.disable("x-powered-by");
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    }),
+  );
   app.use(requestLogger);
 
   app.use(
     cors({
-      origin: env.corsOrigins,
+      origin: ["http://localhost:5173"],
+      allowedHeaders: ["Authorization", "Content-Type"],
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     }),
   );

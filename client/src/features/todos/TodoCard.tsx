@@ -1,6 +1,6 @@
-import { FC, useState } from "react";
-import { Todo } from "../../api/request";
-import { useDeleteTodo, useUpdateTodo } from "../../api/todo";
+import { FC } from "react";
+import { Todo } from "./api";
+import { useDeleteTodo, useUpdateTodo } from "./queries";
 import toast from "react-hot-toast";
 
 interface TodoCardProps {
@@ -8,39 +8,34 @@ interface TodoCardProps {
 }
 
 const TodoCard: FC<TodoCardProps> = ({ todo }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const updateTodoMutation = useUpdateTodo();
   const deleteTodoMutation = useDeleteTodo();
+  const isLoading =
+    updateTodoMutation.isPending || deleteTodoMutation.isPending;
 
   const handleComplete = async () => {
-    setIsLoading(true);
-    toast.loading("Processing...");
-
+    const id = toast.loading("Processing...");
     try {
-      await updateTodoMutation.mutateAsync({ ...todo, isCompleted: true });
-      toast.dismiss();
-      toast.success("Marked as completed");
+      await updateTodoMutation.mutateAsync({
+        id: todo._id,
+        patch: { isCompleted: !todo.isCompleted },
+      });
+      toast.success(
+        todo.isCompleted ? "Marked as pending" : "Marked as completed",
+        { id },
+      );
     } catch (error) {
-      toast.dismiss();
-      toast.error("Error");
-    } finally {
-      setIsLoading(false);
+      toast.error(error instanceof Error ? error.message : "Error", { id });
     }
   };
 
   const handleDelete = async () => {
-    setIsLoading(true);
-    toast.loading("Processing...");
-
+    const id = toast.loading("Processing...");
     try {
-      await deleteTodoMutation.mutateAsync({ ...todo });
-      toast.dismiss();
-      toast.error("Task removed");
+      await deleteTodoMutation.mutateAsync(todo._id);
+      toast.success("Task removed", { id });
     } catch (error) {
-      toast.dismiss();
-      toast.error("Error");
-    } finally {
-      setIsLoading(false);
+      toast.error(error instanceof Error ? error.message : "Error", { id });
     }
   };
 
@@ -61,15 +56,13 @@ const TodoCard: FC<TodoCardProps> = ({ todo }) => {
         </span>
       </div>
       <div className="space-x-2 flex">
-        {!todo.isCompleted && (
-          <button
-            className="px-3.5 py-1 bg-green-400/20 rounded-lg text-[#8aff80]"
-            onClick={handleComplete}
-            disabled={isLoading}
-          >
-            Done
-          </button>
-        )}
+        <button
+          className="px-3.5 py-1 bg-green-400/20 rounded-lg text-[#8aff80]"
+          onClick={handleComplete}
+          disabled={isLoading}
+        >
+          {todo.isCompleted ? "Undo" : "Done"}
+        </button>
         <button
           className="px-3.5 py-1 bg-red-400/20 rounded-lg text-[#ff8880]"
           onClick={handleDelete}

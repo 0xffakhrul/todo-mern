@@ -1,12 +1,12 @@
 import { UserButton, useUser } from "@clerk/clerk-react";
-import TodoForm from "./TodoForm";
-import { useTodos } from "../../api/todo";
-import TodoTab from "./TodoTab";
+import TodoForm from "@/features/todos/TodoForm";
+import { useTodos } from "@/features/todos/queries";
+import TodoTab from "@/features/todos/TodoTab";
 import { Loader } from "lucide-react";
 
 export const Dashboard = () => {
   const { user } = useUser();
-  const { data: todos, isLoading, error } = useTodos(user?.id);
+  const { data: todos, isLoading, error } = useTodos();
 
   const todosArray = todos ?? [];
 
