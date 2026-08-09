@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Todo } from "../../api/request";
+import { Todo } from "./api";
 import TodoCard from "./TodoCard";
 
 interface TodoTabProps {

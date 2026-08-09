@@ -1,43 +1,46 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTodo, deleteTodo, getTodos, Todo, updateTodo } from "./request";
+import {
+  createTodo,
+  deleteTodo,
+  getTodos,
+  TodoPatch,
+  updateTodo,
+  type Todo,
+} from "./api";
+import { useCurrentUser } from "@/auth/clerk";
 
-export const useTodos = (userId: string | undefined) => {
+const todoKey = (userId: string | undefined) => ["todos", userId] as const;
+
+export const useTodos = () => {
+  const { userId, isSignedIn } = useCurrentUser();
   return useQuery<Todo[], Error>({
-    queryKey: ["todos", userId],
-    queryFn: () => getTodos(userId ?? ""),
-    enabled: !!userId,
+    queryKey: todoKey(userId),
+    queryFn: () => getTodos(userId!),
+    enabled: isSignedIn && !!userId,
   });
+};
+
+const useInvalidateTodos = () => {
+  const qc = useQueryClient();
+  const { userId } = useCurrentUser();
+  return () => qc.invalidateQueries({ queryKey: todoKey(userId) });
 };
 
 export const useCreateTodo = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createTodo,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["todos", variables.userId] });
-    },
-  });
+  const invalidate = useInvalidateTodos();
+  return useMutation({ mutationFn: createTodo, onSuccess: invalidate });
 };
 
 export const useUpdateTodo = () => {
-  const queryClient = useQueryClient();
-
+  const invalidate = useInvalidateTodos();
   return useMutation({
-    mutationFn: updateTodo,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["todos", variables.userId] });
-    },
+    mutationFn: ({ id, patch }: { id: string; patch: TodoPatch }) =>
+      updateTodo(id, patch),
+    onSuccess: invalidate,
   });
 };
 
 export const useDeleteTodo = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: deleteTodo,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["todos", variables.userId] });
-    },
-  });
+  const invalidate = useInvalidateTodos();
+  return useMutation({ mutationFn: deleteTodo, onSuccess: invalidate });
 };
