@@ -8,11 +8,11 @@ export interface Todo {
   isCompleted: boolean;
 }
 
-export type NewTodo = Pick<Todo, "userId" | "description">;
+export type NewTodo = Pick<Todo, "description">;
 export type TodoPatch = Partial<Pick<Todo, "description" | "isCompleted">>;
 
-export const getTodos = async (userId: string): Promise<Todo[]> => {
-  const { data } = await api.get<Todo[]>(`/api/todos/${userId}`);
+export const getTodos = async (): Promise<Todo[]> => {
+  const { data } = await api.get<Todo[]>("/api/todos");
   return data;
 };
 

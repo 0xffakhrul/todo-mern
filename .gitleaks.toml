@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "CI test placeholders (not real creds)"
+regexes = [
+  '''pk_test_Y2ktZHVtbXkuY2xlcmsuYWNjb3VudHMuZGV2JA''',
+  '''sk_test_not_a_real_key''',
+]

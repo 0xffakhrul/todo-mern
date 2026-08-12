@@ -78,11 +78,21 @@ jobs:
           docker run -d --name api --network ci-net -p 8080:8080 \
             -e MONGO_URI=mongodb://mongo:27017/todo-mern \
             -e NODE_ENV=production \
+            -e CLERK_SECRET_KEY=sk_test_not_a_real_key \
+            -e CLERK_PUBLISHABLE_KEY=pk_test_Y2ktZHVtbXkuY2xlcmsuYWNjb3VudHMuZGV2JA \
             todo-mern-server:ci
 
           for i in {1..30}; do
             if curl -fsS localhost:8080/healthz > /dev/null; then
-              echo "healthy"; exit 0
+              echo "healthy"
+
+              code=$(curl -s -o /dev/null -w '%{http_code}' localhost:8080/api/todos)
+              if [ "$code" != "401" ]; then
+                echo "expected 401 from /api/todos without a session, got $code"
+                docker logs api
+                exit 1
+              fi
+              echo "auth wired"; exit 0
             fi
             sleep 2
           done

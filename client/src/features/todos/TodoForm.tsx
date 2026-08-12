@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useCreateTodo } from "./queries";
 import toast from "react-hot-toast";
-import { useUser } from "@clerk/clerk-react";
 
 export default function TodoForm() {
   const [description, setDescription] = useState<string>("");
   const createTodoMutation = useCreateTodo();
   const isLoading = createTodoMutation.isPending;
-  const { user } = useUser();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -17,7 +15,6 @@ export default function TodoForm() {
     const id = toast.loading("Adding task...");
     try {
       await createTodoMutation.mutateAsync({
-        userId: user?.id ?? "",
         description: trimmed,
       });
       toast.success("Todo added!", { id });
