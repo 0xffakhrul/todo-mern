@@ -1,24 +1,46 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../app";
 import { TodoModel } from "../models/todo.model";
+import { auth } from "./clerkMock";
+
+vi.mock(
+  "@clerk/express",
+  async () => (await import("./clerkMock")).clerkModuleMock,
+);
 
 const app = createApp();
 const VALID_ID = "6a75fb31f8dba5a73e4c5e3b";
+const ME = "user_me";
 
 async function seed(userId: string, description: string) {
   return TodoModel.create({ userId, description });
 }
 
+beforeEach(() => {
+  auth.userId = ME;
+});
+
+describe("auth", () => {
+  it("401s when there is no signed-in user", async () => {
+    auth.userId = null;
+
+    const res = await request(app).get("/api/todos");
+
+    expect(res.status).toBe(401);
+    expect(res.body.error.message).toBe("Unauthorized");
+  });
+});
+
 describe("POST /api/todos", () => {
-  it("creates a todo", async () => {
+  it("creates a todo owned by the signed-in user", async () => {
     const res = await request(app)
       .post("/api/todos")
-      .send({ userId: "me", description: "write tests" });
+      .send({ description: "write tests" });
 
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
-      userId: "me",
+      userId: ME,
       description: "write tests",
       isCompleted: false,
     });
@@ -29,15 +51,24 @@ describe("POST /api/todos", () => {
   it("rejects unknown keys", async () => {
     const res = await request(app)
       .post("/api/todos")
-      .send({ userId: "me", description: "x", isCompleted: true });
+      .send({ description: "x", isCompleted: true });
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toBe("Validation failed");
     expect(res.body.error.issues[0].message).toContain("isCompleted");
   });
 
+  it("rejects a client-supplied userId", async () => {
+    const res = await request(app)
+      .post("/api/todos")
+      .send({ userId: "someone-else", description: "x" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.issues[0].message).toContain("userId");
+  });
+
   it("rejects a missing description", async () => {
-    const res = await request(app).post("/api/todos").send({ userId: "me" });
+    const res = await request(app).post("/api/todos").send({});
 
     expect(res.status).toBe(400);
     expect(res.body.error.issues).toHaveLength(1);
@@ -47,7 +78,7 @@ describe("POST /api/todos", () => {
   it("rejects an empty description after trimming", async () => {
     const res = await request(app)
       .post("/api/todos")
-      .send({ userId: "me", description: "   " });
+      .send({ description: "   " });
 
     expect(res.status).toBe(400);
   });
@@ -55,7 +86,7 @@ describe("POST /api/todos", () => {
   it("trims whitespace on success", async () => {
     const res = await request(app)
       .post("/api/todos")
-      .send({ userId: "me", description: "  padded  " });
+      .send({ description: "  padded  " });
 
     expect(res.status).toBe(201);
     expect(res.body.description).toBe("padded");
@@ -64,30 +95,25 @@ describe("POST /api/todos", () => {
 
 describe("GET /api/todos", () => {
   beforeEach(async () => {
-    await seed("alice", "alice one");
-    await seed("alice", "alice two");
-    await seed("bob", "bob one");
+    await seed(ME, "mine one");
+    await seed(ME, "mine two");
+    await seed("user_bob", "bob one");
   });
 
-  it("returns every todo from /all", async () => {
-    const res = await request(app).get("/api/todos/all");
-
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(3);
-  });
-
-  it("filters by userId", async () => {
-    const res = await request(app).get("/api/todos/alice");
+  it("returns only the signed-in user's todos", async () => {
+    const res = await request(app).get("/api/todos");
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(2);
-    expect(
-      res.body.every((t: { userId: string }) => t.userId === "alice"),
-    ).toBe(true);
+    expect(res.body.every((t: { userId: string }) => t.userId === ME)).toBe(
+      true,
+    );
   });
 
-  it("returns an empty array for an unknown user", async () => {
-    const res = await request(app).get("/api/todos/nobody");
+  it("returns an empty array for a user with no todos", async () => {
+    auth.userId = "user_nobody";
+
+    const res = await request(app).get("/api/todos");
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual([]);
@@ -96,7 +122,7 @@ describe("GET /api/todos", () => {
 
 describe("PUT /api/todos/:id", () => {
   it("updates isCompleted", async () => {
-    const todo = await seed("me", "toggle me");
+    const todo = await seed(ME, "toggle me");
 
     const res = await request(app)
       .put(`/api/todos/${todo._id}`)
@@ -107,7 +133,7 @@ describe("PUT /api/todos/:id", () => {
   });
 
   it("rejects an empty body", async () => {
-    const todo = await seed("me", "x");
+    const todo = await seed(ME, "x");
 
     const res = await request(app).put(`/api/todos/${todo._id}`).send({});
 
@@ -132,11 +158,21 @@ describe("PUT /api/todos/:id", () => {
     expect(res.status).toBe(404);
     expect(res.body.error.message).toBe("Todo not found");
   });
+
+  it("404s on another user's todo", async () => {
+    const todo = await seed("user_bob", "not yours");
+
+    const res = await request(app)
+      .put(`/api/todos/${todo._id}`)
+      .send({ isCompleted: true });
+
+    expect(res.status).toBe(404);
+  });
 });
 
 describe("DELETE /api/todos/:id", () => {
   it("deletes and returns the todo", async () => {
-    const todo = await seed("me", "delete me");
+    const todo = await seed(ME, "delete me");
 
     const res = await request(app).delete(`/api/todos/${todo._id}`);
 
@@ -148,5 +184,14 @@ describe("DELETE /api/todos/:id", () => {
     const res = await request(app).delete(`/api/todos/${VALID_ID}`);
 
     expect(res.status).toBe(404);
+  });
+
+  it("404s on another user's todo", async () => {
+    const todo = await seed("user_bob", "not yours");
+
+    const res = await request(app).delete(`/api/todos/${todo._id}`);
+
+    expect(res.status).toBe(404);
+    expect(await TodoModel.countDocuments()).toBe(1);
   });
 });

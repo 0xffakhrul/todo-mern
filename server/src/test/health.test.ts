@@ -1,6 +1,11 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../app";
+
+vi.mock(
+  "@clerk/express",
+  async () => (await import("./clerkMock")).clerkModuleMock,
+);
 
 const app = createApp();
 
