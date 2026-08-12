@@ -15,7 +15,7 @@ export const useTodos = () => {
   const { userId, isSignedIn } = useCurrentUser();
   return useQuery<Todo[], Error>({
     queryKey: todoKey(userId),
-    queryFn: () => getTodos(userId!),
+    queryFn: getTodos,
     enabled: isSignedIn && !!userId,
   });
 };

@@ -1,3 +1,4 @@
+import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
@@ -30,6 +31,7 @@ export function createApp(): Express {
   app.use(express.json({ limit: "100kb" }));
 
   app.use(healthRoutes);
+  app.use(clerkMiddleware());
   app.use("/api", routes);
 
   app.use(notFound);

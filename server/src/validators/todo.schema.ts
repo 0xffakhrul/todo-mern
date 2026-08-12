@@ -7,7 +7,6 @@ const objectId = z
 
 export const createTodoBody = z
   .object({
-    userId: z.string().trim().min(1).max(100),
     description: z.string().trim().min(1).max(500),
   })
   .strict();
@@ -23,9 +22,7 @@ export const updateTodoBody = z
   });
 
 export const todoIdParams = z.object({ id: objectId });
-export const userIdParams = z.object({ userId: z.string().trim().min(1) });
 
 export type CreateTodoBody = z.infer<typeof createTodoBody>;
 export type UpdateTodoBody = z.infer<typeof updateTodoBody>;
 export type TodoIdParams = z.infer<typeof todoIdParams>;
-export type UserIdParams = z.infer<typeof userIdParams>;
