@@ -2,6 +2,7 @@ import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
+import { env } from "process";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { requestLogger } from "./middleware/requestLogger";
@@ -21,7 +22,7 @@ export function createApp(): Express {
 
   app.use(
     cors({
-      origin: ["http://localhost:5173"],
+      origin: env.corsOrigins,
       allowedHeaders: ["Authorization", "Content-Type"],
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     }),
